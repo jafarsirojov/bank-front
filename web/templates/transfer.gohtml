@@ -20,16 +20,13 @@
         <div id="navbarContent" class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/login">LogIn</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">logOut</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/register">Register</a>
+                    <a class="nav-link" href="/chat">Chat</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/profile">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">logOut</a>
                 </li>
             </ul>
         </div>
@@ -40,7 +37,7 @@
         <br/>
         <br/>
         <div
-                style="background-image:url(http://ub.kg/wp-content/uploads/2017/07/Kompanon-Internet-banking.jpg); padding-bottom: 60px; background-position: center; background-repeat: no-repeat; background-size: cover">
+                style="background-image:url(https://bankstoday.net/wp-content/uploads/2019/03/Depositphotos_124365760_l-2015.jpg); padding-bottom: 155px; background-position: center; background-repeat: no-repeat; background-size: cover">
             <div>
                 <div>
                     <div>
@@ -73,6 +70,34 @@
     <br/>
     <br/>
     <br/>
+    <div class="row">
+        <div class="col">
+            <form action="/transfer" method="post">
+                <div class="form-group">
+                    <label for="numberCard">Номер карты получателья</label>
+                    <input name="numberCard" type="text" class="form-control" id="numberCard" required>
+                    {{/*                    {{ if .Err "err.invalid_login" }}*/}}
+                    {{/*                        <div class="invalid-feedback">Invalid login</div>*/}}
+                    {{/*                    {{ end }}*/}}
+                </div>
+                <div class="form-group">
+                    <label for="idCard">id карты, из которого хочешь переводить</label>
+                    <input name="idCard" type="text" class="form-control" id="idCard" required>
+                    {{/*                    {{ if .Err "err.invalid_pass" }}*/}}
+                    {{/*                        <div class="invalid-feedback">Invalid password</div>*/}}
+                    {{/*                    {{ end }}*/}}
+                </div>
+                <div class="form-group">
+                    <label for="count">Сумма перевода</label>
+                    <input name="count" type="text" class="form-control" id="count" required>
+                    {{/*                    {{ if .Err "err.invalid_pass" }}*/}}
+                    {{/*                        <div class="invalid-feedback">Invalid password</div>*/}}
+                    {{/*                    {{ end }}*/}}
+                </div>
+                <button type="submit" class="btn btn-primary">Переводить</button>
+            </form>
+        </div>
+    </div>
     <br/>
     <br/>
     <br/>

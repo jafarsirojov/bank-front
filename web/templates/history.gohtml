@@ -20,16 +20,13 @@
         <div id="navbarContent" class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/login">LogIn</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="/profile">Profile</a>
+                </li>
+                    <a class="nav-link" href="/chat">Chat</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/logout">logOut</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/register">Register</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/profile">Profile</a>
                 </li>
             </ul>
         </div>
@@ -40,7 +37,7 @@
         <br/>
         <br/>
         <div
-                style="background-image:url(http://ub.kg/wp-content/uploads/2017/07/Kompanon-Internet-banking.jpg); padding-bottom: 60px; background-position: center; background-repeat: no-repeat; background-size: cover">
+                style="background-image:url(https://www.profiz.ru/upl/pictures/Timokhina/tradingplan.jpg); padding-bottom: 200px; background-position: center; background-repeat: no-repeat; background-size: cover">
             <div>
                 <div>
                     <div>
@@ -73,6 +70,19 @@
     <br/>
     <br/>
     <br/>
+    {{range .Data}}
+        <form action="">
+            <label >id: {{.Id}}</label>
+            <label >name: {{.Name}}</label>
+            <label >number: {{.Number}}</label>
+            <label >RecipientSender: {{.RecipientSender}}</label>
+            <label >Count: {{.Count}}</label>
+            <label >BalanceOld: {{.BalanceOld}}</label>
+            <label >BalanceNew: {{.BalanceNew}}</label>
+            <label >Time: {{.Time}}</label>
+            <label >owner id: {{.OwnerID}}</label>
+        </form>
+    {{end}}
     <br/>
     <br/>
     <br/>
@@ -100,3 +110,8 @@
         crossorigin="anonymous"></script>
 </body>
 </html>
+
+
+
+{{/*https://www.b2b-ray.com/wp-content/uploads/2016/09/Marketing-Directors-Checklist-for-2016.jpg*/}}
+

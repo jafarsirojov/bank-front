@@ -20,32 +20,33 @@
         <div id="navbarContent" class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/logout">LogOut</a>
+                    <a class="nav-link" href="/login">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/register">Register</a>
+                    <a class="nav-link" href="/logout">LogOut</a>
                 </li>
             </ul>
         </div>
     </nav>
     <div class="row">
         <div class="col">
-            <form action="/login" method="post">
+            <form action="/add/card" method="post">
                 <div class="form-group">
-                    <label for="login">Login</label>
-                    <input name="login" type="text" class="form-control" id="login" required>
+                    <label for="name">Имя счёта</label>
+                    <input name="name" type="text" class="form-control" id="name" required>
                     {{/*                    {{ if .Err "err.invalid_login" }}*/}}
                     {{/*                        <div class="invalid-feedback">Invalid login</div>*/}}
                     {{/*                    {{ end }}*/}}
                 </div>
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input name="password" type="password" class="form-control" id="password" required>
-                    {{/*                    {{ if .Err "err.invalid_pass" }}*/}}
-                    {{/*                        <div class="invalid-feedback">Invalid password</div>*/}}
-                    {{/*                    {{ end }}*/}}
+                    <label for="balance">Начальный баланс</label>
+                    <input name="balance" type="text" class="form-control" id="balance" required >
                 </div>
-                <button type="submit" class="btn btn-primary">Login</button>
+                <div class="form-group">
+                    <label for="ownerid">id владелец счёта</label>
+                    <input name="ownerid" type="text" class="form-control" id="ownerid" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Регистрация</button>
             </form>
         </div>
     </div>

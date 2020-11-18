@@ -5,3 +5,4 @@ type Payload struct {
 	Exp   int64    `json:"exp"`
 	Phone int `json:"phone"`
 }
+

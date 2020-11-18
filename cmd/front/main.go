@@ -12,20 +12,15 @@ import (
 	"net/http"
 )
 
-//var (
-//	host    = flag.String("host", "0.0.0.0", "Server host")
-//	port    = flag.String("port", "8888", "Server port")
-//	authUrl = flag.String("authUrl", "http://localhost:9999", "Auth Service URL")
-//)
 var (
 	host       = flag.String("host", "", "Server host")
 	port       = flag.String("port", "", "Server port")
 	authUrl    = flag.String("authUrl", "", "Auth Service URL")
 	cardsUrl   = flag.String("cardsUrl", "", "Cards Service URL")
-	historyUrl = flag.String("historyUrl", "", "History Service URL")
+	historyUrl = flag.String("historyUrl", "", "Transfer Service URL")
 )
 
-//-host 0.0.0.0 -port 9012 -authUrl "http://localhost:9011" -cardsUrl "http://localhost:9009" -historyUrl "http://localhost:9010"
+	//-host 0.0.0.0 -port 9012 -authUrl "http://localhost:9011" -cardsUrl "http://localhost:9009" -historyUrl "http://localhost:9010"
 
 func main() {
 	flag.Parse()

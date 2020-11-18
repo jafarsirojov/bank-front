@@ -13,22 +13,60 @@ var (
 	Login  = "/login"
 	Logout = "/logout"
 	Posts  = "/posts"
-	// TODO: change to {id} and add own formattin functions
+	// TODO: change to {id} and add own formatting functions
 	Post     = "/posts/%s"
 	PostEdit = "/posts/%s/edit"
 	Profile  = "/profile"
+	Transfer = "/transfer"
+	Payment  = "/payment"
+	History  = "/history"
+	Register = "/register"
+	AddCard  = "/add/card"
+	ErrorPage = "/page/error/client"
+	Block = "/card/block"
+	UnBlock = "/card/unblock"
 )
 
 func (s *Server) InitRoutes() {
 	jwtMW := jwt.JWT(jwtmux.SourceCookie, reflect.TypeOf((*Payload)(nil)).Elem(), s.secret)
 	authMW := authenticated.Authenticated(jwt.IsContextNonEmpty, true, Root)
-	s.router.GET(Root, s.handleFrontPage(), jwtMW, logger.Logger("HTTP"))
+	s.router.GET(Root, s.handleFrontPage(), logger.Logger("HTTP"))
 	// GET -> html
-	s.router.GET(Login, s.handleLoginPage(), jwtMW, logger.Logger("HTTP"))
-	s.router.GET(Logout, s.handleLogout(), jwtMW, logger.Logger("HTTP"))
+
+	s.router.GET(ErrorPage, s.handlePageErrorClient(), logger.Logger("HTTP"))
+	s.router.POST(ErrorPage, s.handlePageErrorClient(), logger.Logger("HTTP"))
+
+	s.router.GET(Login, s.handleLoginPage(), logger.Logger("HTTP"))
+	s.router.GET(Logout, s.handleLogout(), logger.Logger("HTTP"))
 	// POST -> form handling + return HTML
-	s.router.POST(Login, s.handleLogin(), jwtMW, logger.Logger("HTTP"))
-	s.router.GET(Profile, s.handleProfile(), jwtMW, authMW, logger.Logger("HTTP"))
+	s.router.POST(Login, s.handleLogin(), logger.Logger("HTTP"))
+	s.router.GET(Profile, s.handleProfile(), jwtMW, logger.Logger("HTTP"))  //authMW deleted
+	s.router.POST(Profile, s.handleProfile(), jwtMW, logger.Logger("HTTP")) //authMW deleted
+
+	s.router.GET(Transfer, s.handleTransferPage(), jwtMW, logger.Logger("HTTP"))
+	s.router.POST(Transfer, s.handleTransfer(), jwtMW, logger.Logger("HTTP"))
+
+	s.router.GET(Block, s.handleBlockPage(), jwtMW, logger.Logger("HTTP"))
+	s.router.POST(Block, s.handleBlock(), jwtMW, logger.Logger("HTTP"))
+
+	s.router.GET(UnBlock, s.handleUnBlockPage(), jwtMW, logger.Logger("HTTP"))
+	s.router.POST(UnBlock, s.handleUnBlock(), jwtMW, logger.Logger("HTTP"))
+
+	s.router.GET(Register, s.handleRegisterPage(), logger.Logger("HTTP"))
+	s.router.POST(Register, s.handleRegister(), logger.Logger("HTTP"))
+
+	s.router.GET(AddCard, s.handleAddCardPage(), logger.Logger("HTTP"))
+	s.router.POST(AddCard, s.handleAddCard(), logger.Logger("HTTP"))
+
+	//s.router.GET(Transfer, s.handleHistoryPage(), jwtMW, logger.Logger("HTTP"))
+	s.router.POST(History, s.handleHistory(), jwtMW, logger.Logger("HTTP"))
+	s.router.GET(History, s.handleHistory(), jwtMW, logger.Logger("HTTP"))
+
+	s.router.GET(Payment, s.handlePayment(), jwtMW, logger.Logger("HTTP"))
+	s.router.POST(Payment, s.handlePayment(), jwtMW, logger.Logger("HTTP"))
+
+	//s.router.GET("/cards", s.handleCards(), jwtMW, logger.Logger("HTTP"))
+	//s.router.POST("/cards", s.handleCards(), jwtMW, logger.Logger("HTTP"))
 
 	// список постов
 	s.router.GET(Posts, s.handlePostsPage(), authMW, jwtMW, logger.Logger("HTTP"))
