@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jafarsirojov/rest/pkg/rest"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -20,8 +20,8 @@ type Cards struct {
 	Id      int    `json:"id"`
 	Number  string `json:"number"`
 	Name    string `json:"name"`
-	Balance int  `json:"balance"`
-	OwnerID int  `json:"owner_id"`
+	Balance int    `json:"balance"`
+	OwnerID int    `json:"owner_id"`
 }
 type ModelTransferMoneyCardToCard struct {
 	IdCardSender        int    `json:"id_card_sender"`
@@ -82,7 +82,7 @@ func (c *Card) AllCards(ctx context.Context, token string) (model []Cards, err e
 			log.Fatalf("can't close response body: %d", err)
 		}
 	}()
-	err = rest.ReadJSONBody2(response, &model)
+	err = ReadJSONBody2(response, &model)
 	if err != nil {
 		return nil, fmt.Errorf("can't parse response: %w", err)
 	}
@@ -96,6 +96,25 @@ func (c *Card) AllCards(ctx context.Context, token string) (model []Cards, err e
 	default:
 		return nil, ErrUnknown
 	}
+}
+
+func ReadJSONBody2(response *http.Response, dto interface{}) error {
+	if response.Header.Get("Content-Type") != "application/json" {
+		return errors.New("error: incorrect Content-Type")
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return errors.New("error")
+	}
+	defer response.Body.Close()
+
+	err = json.Unmarshal(body, &dto)
+	if err != nil {
+		return errors.New("error")
+	}
+
+	return nil
 }
 
 //-----------------------
@@ -155,7 +174,7 @@ func (c *Card) Transfer(ctx context.Context, numberCardRecipient string, idCardS
 		log.Print("can't server internal error 500")
 		return fmt.Errorf("can't server internal error 500: %w", err)
 	default:
-		return fmt.Errorf("can't transfer money: %s",response.StatusCode)
+		return fmt.Errorf("can't transfer money: %s", response.StatusCode)
 	}
 
 }
@@ -176,10 +195,10 @@ func (c *Card) AddCard(ctx context.Context, name string, balanceStr string, owne
 	}
 
 	requestData := Cards{
-		Id:0,
-		Name:name,
-		Balance:balance,
-		OwnerID:ownerid,
+		Id:      0,
+		Name:    name,
+		Balance: balance,
+		OwnerID: ownerid,
 	}
 	requestBody, err := json.Marshal(requestData)
 	if err != nil {
@@ -213,6 +232,6 @@ func (c *Card) AddCard(ctx context.Context, name string, balanceStr string, owne
 		log.Print("can't server internal error 500")
 		return fmt.Errorf("can't server internal error 500: %w", err)
 	default:
-		return fmt.Errorf("can't transfer money: %s",response.StatusCode)
+		return fmt.Errorf("can't transfer money: %s", response.StatusCode)
 	}
 }

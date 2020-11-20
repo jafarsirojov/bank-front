@@ -799,8 +799,9 @@ func (s *Server) handlePageErrorClient() http.HandlerFunc {
 		err := tpl.Execute(writer, struct{}{})
 		if err != nil {
 			log.Printf("error while executing template %s %v", tpl.Name(), err)
+			return
 		}
-		http.Redirect(writer, request, Profile, http.StatusTemporaryRedirect)
+		//http.Redirect(writer, request, Profile, http.StatusTemporaryRedirect)
 	}
 }
 

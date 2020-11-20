@@ -3,9 +3,10 @@ package history
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jafarsirojov/rest/pkg/rest"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
@@ -48,7 +49,7 @@ func (c *History) AllHistory(ctx context.Context, token string) (model []ModelOp
 			log.Fatalf("can't close response body: %d", err)
 		}
 	}()
-	err = rest.ReadJSONBody2(response, &model)
+	err = ReadJSONBody2(response, &model)
 	if err != nil {
 		return nil, fmt.Errorf("can't parse response: %w", err)
 	}
@@ -64,6 +65,26 @@ func (c *History) AllHistory(ctx context.Context, token string) (model []ModelOp
 		return nil, ErrUnknown
 	}
 }
+
+func ReadJSONBody2(response *http.Response, dto interface{}) error {
+	if response.Header.Get("Content-Type") != "application/json" {
+		return errors.New("error: incorrect Content-Type")
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return errors.New("error")
+	}
+	defer response.Body.Close()
+
+	err = json.Unmarshal(body, &dto)
+	if err != nil {
+		return errors.New("error")
+	}
+
+	return nil
+}
+
 type ModelOperationsLog struct {
 	Id              int    `json:"id"`
 	Name            string `json:"name"`
