@@ -232,6 +232,6 @@ func (c *Card) AddCard(ctx context.Context, name string, balanceStr string, owne
 		log.Print("can't server internal error 500")
 		return fmt.Errorf("can't server internal error 500: %w", err)
 	default:
-		return fmt.Errorf("can't transfer money: %s", response.StatusCode)
+		return fmt.Errorf("can't add card: %d", response.StatusCode)
 	}
 }

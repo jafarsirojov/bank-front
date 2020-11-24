@@ -20,7 +20,7 @@ var (
 	historyUrl = flag.String("historyUrl", "", "Transfer Service URL")
 )
 
-	//-host 0.0.0.0 -port 9012 -authUrl "http://localhost:9011" -cardsUrl "http://localhost:9009" -historyUrl "http://localhost:9010"
+	//-host 0.0.0.0 -port 9012 -authUrl "http://localhost:9011" -cardsUrl "http://localhost:9019" -historyUrl "http://localhost:9010"
 
 func main() {
 	flag.Parse()

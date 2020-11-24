@@ -595,6 +595,7 @@ func (s *Server) handleRegisterPage() http.HandlerFunc {
 		if err != nil {
 			log.Printf("error while executing template %s %v", tpl.Name(), err)
 		}
+		log.Println("writer: ", writer,"tpl", tpl)
 		http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
 	}
 }

@@ -134,11 +134,13 @@ func (c *Client) Register(ctx context.Context, name string, login string, passwo
 		bytes.NewBuffer(requestBody),
 	)
 	if err != nil {
+		log.Println("Can't http.NewRequestWithContext, client.go 137")
 		return fmt.Errorf("can't create request: %w", err)
 	}
 	request.Header.Set("Content-Type", "application/json")
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
+		log.Println("Can't http.DefaultClient.Do, client.go 143")
 		return fmt.Errorf("can't send request: %w", err)
 	}
 	defer response.Body.Close()
