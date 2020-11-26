@@ -8,150 +8,82 @@
     <title>Welcome!</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous"></script>
+    <style>
+        * {
+            font-family: "Trebuchet MS", sans-serif;
+            margin: 0;
+            padding: 0;
+            color: black;
+        }
+    </style>
 </head>
-<body>
-<div class="container">
-    <nav style="position: fixed; width: 48.0%" class="navbar navbar-light bg-light">
-        <a class="navbar-brand" href="/">My Bank</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarContent"
-                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div id="navbarContent" class="collapse navbar-collapse">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/chat">Chat</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">logOut</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <div>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <div
-                style="background-image:url(https://bankstoday.net/wp-content/uploads/2019/03/Depositphotos_124365760_l-2015.jpg); padding-bottom: 155px; background-position: center; background-repeat: no-repeat; background-size: cover">
-            <div>
-                <div>
-                    <div>
-                        <div>
-                            <div style="color: white" align="center">
-                                <p>
-                                <h3></h3></p>
-                                <p>
-                                <h1> <br/></h1></p>
-                                <br/>
-                                <br>
-                                <br>
-                                <br>
-                                <br>
-                                <br>
-                                <br>
-                                <p>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+<body style="background: -webkit-Linear-gradient(to Right,#FFEDEF,#DEEEBC);
+background: Linear-gradient(to Right,#FFEDEF,#DEEEBC); ">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary" style="box-shadow: 0 0 10px -3px gray">
+    <a class="navbar-brand" href="/profile">JBank</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+            aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item dropdown active">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Операции со счётом
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/card/block">Блокировка счёта</a>
+                    <a class="dropdown-item" href="/card/unblock">Разблокировка счёта</a>
+                    <a class="dropdown-item" href="/add/card">Добавление счёта</a>
                 </div>
-            </div>
-        </div>
+            </li>
+            <li class="nav-item dropdown active">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Дополнительно
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/transfer">Перевод денег</a>
+                    <a class="dropdown-item" href="/payment">Оплата услуг</a>
+                </div>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/history">Истории транзакции</a>
+            </li>
+        </ul>
+        <button class="btn btn-warning my-2 my-sm-0" type="submit" style="margin: 0 10px"
+                onclick="location.href='/chat'">Open Chat
+        </button>
+        <button class="btn btn-dark my-2 my-sm-0" type="submit" style="margin: 0 10px"
+                onclick="location.href='/logout'">Log-out
+        </button>
     </div>
-    <br/>
-    <br/>
-    <div>
-        <div>
-            <div>
-                <a class="btn btn-primary" href="/cards" aria-expanded="false" aria-controls="collapseExample">Найти счёт по id</a>
-            </div>
+</nav>
+<br>
+<div class="row" style="margin-left: 10px">
+    {{range . }}
+        <div class="col-3">
+            <a class="btn btn-info my-2 my-sm-0 card border-primary text-white" href="/{{.Id}}"
+               style="padding: 0; text-align: left; box-shadow: 0 0 10px -6px gray; min-width: 250px">
+                <div class="card-header">{{.Number}}</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{.Name}}</h5>
+                    <br>
+                    <p class="card-text">Balance: {{.Balance}}</p>
+                </div>
+            </a>
         </div>
-    </div>
-    <br/>
-    <div>
-        <div>
-            <div>
-                <a class="btn btn-primary" href="/card/block" aria-expanded="false" aria-controls="collapseExample">Блокировка счёта    </a>
-            </div>
-        </div>
-    </div>
-    <br>
-    <div>
-        <div>
-            <div>
-                <a class="btn btn-primary" href="/card/unblock" aria-expanded="false" aria-controls="collapseExample">Разблокировка счёта  </a>
-            </div>
-        </div>
-    </div>
-    <br/>
-    <br/>
-    <div>
-        <div>
-            <div>
-               <a class="btn btn-primary" href="/transfer" aria-expanded="false" aria-controls="collapseExample">Перевод денег        '</a>
-            </div>
-        </div>
-    </div>
-    <br>
-    <div>
-        <div>
-            <div>
-                <a class="btn btn-primary" href="/payment" aria-expanded="false" aria-controls="collapseExample">Оплата услуг      '</a>
-            </div>
-        </div>
-    </div>
-    <div>
-        <div>
-            <div>
-                <a class="btn btn-primary" href="/history" aria-expanded="false" aria-controls="collapseExample">Истории транзакции</a>
-            </div>
-        </div>
-    </div>
-    <div>
-        <div>
-            <div>
-                <a class="btn btn-primary" href="/add/card" aria-expanded="false" aria-controls="collapseExample">Добавление счёта</a>
-            </div>
-        </div>
-    </div>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    {{range .}}
-        <form action="">
-            <label >id: {{.Id}}</label>
-            <label >name: {{.Name}}</label>
-            <label >number: {{.Number}}</label>
-            <label >balance: {{.Balance}}</label>
-            <label >owner id: {{.OwnerID}}</label>
-        </form>
-    {{end}}
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
-
+    {{ end }}
 </div>
-
-<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-        crossorigin="anonymous"></script>
 </body>
 </html>
