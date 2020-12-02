@@ -12,14 +12,9 @@ var (
 	Root   = "/"
 	Login  = "/login"
 	Logout = "/logout"
-	Posts  = "/posts"
-	// TODO: change to {id} and add own formatting functions
-	Post     = "/posts/%s"
-	PostEdit = "/posts/%s/edit"
 	Profile  = "/profile"
 	Transfer = "/transfer"
 	Payment  = "/payment"
-	History  = "/history"
 	Register = "/register"
 	AddCard  = "/add/card"
 	ErrorPage = "/page/error/client"
@@ -59,20 +54,18 @@ func (s *Server) InitRoutes() {
 	s.router.POST(AddCard, s.handleAddCard(), logger.Logger("HTTP"))
 
 	//s.router.GET(Transfer, s.handleHistoryPage(), jwtMW, logger.Logger("HTTP"))
-	s.router.POST(History, s.handleHistory(), jwtMW, logger.Logger("HTTP"))
-	s.router.GET(History, s.handleHistory(), jwtMW, logger.Logger("HTTP"))
+	s.router.POST("/history", s.handleHistory(), jwtMW, logger.Logger("HTTP"))
+	s.router.GET("/history", s.handleHistory(), jwtMW, logger.Logger("HTTP"))
 
 	s.router.GET(Payment, s.handlePayment(), jwtMW, logger.Logger("HTTP"))
 	s.router.POST(Payment, s.handlePayment(), jwtMW, logger.Logger("HTTP"))
 
+	s.router.GET("/cards", s.handleCardsPage(), jwtMW, logger.Logger("HTTP"))
 	//s.router.GET("/cards", s.handleCards(), jwtMW, logger.Logger("HTTP"))
-	//s.router.POST("/cards", s.handleCards(), jwtMW, logger.Logger("HTTP"))
+	s.router.POST("/cards", s.handleCards(), jwtMW, logger.Logger("HTTP"))
 
-	// список постов
-	s.router.GET(Posts, s.handlePostsPage(), authMW, jwtMW, logger.Logger("HTTP"))
-	s.router.POST(Posts, s.handlePostsPage(), authMW, jwtMW, logger.Logger("HTTP"))
-	// форма создания/редактирования
-	s.router.GET(PostEdit, s.handlePostEditPage(), authMW, jwtMW, logger.Logger("HTTP"))
-	// сохранение
-	s.router.POST(PostEdit, s.handlePostEdit(), authMW, jwtMW, logger.Logger("HTTP"))
+	// chat service
+	s.router.GET("/message/all", s.handlePostsPage(), authMW, jwtMW, logger.Logger("HTTP"))
+	s.router.GET("/message", s.handlePostsPage(), authMW, jwtMW, logger.Logger("HTTP"))
+	s.router.POST("/message", s.handlePostsPage(), authMW, jwtMW, logger.Logger("HTTP"))
 }
