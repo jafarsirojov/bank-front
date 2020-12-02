@@ -9,17 +9,18 @@ import (
 )
 
 var (
-	Root   = "/"
-	Login  = "/login"
-	Logout = "/logout"
-	Profile  = "/profile"
-	Transfer = "/transfer"
-	Payment  = "/payment"
-	Register = "/register"
-	AddCard  = "/add/card"
+	Root      = "/"
+	Login     = "/login"
+	Logout    = "/logout"
+	Profile   = "/profile"
+	Chat      = "/message"
+	Transfer  = "/transfer"
+	Payment   = "/payment"
+	Register  = "/register"
+	AddCard   = "/add/card"
 	ErrorPage = "/page/error/client"
-	Block = "/card/block"
-	UnBlock = "/card/unblock"
+	Block     = "/card/block"
+	UnBlock   = "/card/unblock"
 )
 
 func (s *Server) InitRoutes() {
@@ -65,7 +66,9 @@ func (s *Server) InitRoutes() {
 	s.router.POST("/cards", s.handleCards(), jwtMW, logger.Logger("HTTP"))
 
 	// chat service
-	s.router.GET("/message/all", s.handlePostsPage(), authMW, jwtMW, logger.Logger("HTTP"))
-	s.router.GET("/message", s.handlePostsPage(), authMW, jwtMW, logger.Logger("HTTP"))
-	s.router.POST("/message", s.handlePostsPage(), authMW, jwtMW, logger.Logger("HTTP"))
+	s.router.GET("/message/all", s.handleChat(), authMW, jwtMW, logger.Logger("HTTP"))
+	s.router.POST("/message/all", s.handleChat(), authMW, jwtMW, logger.Logger("HTTP"))
+
+	s.router.GET(Chat, s.handleMessagePage(), authMW, jwtMW, logger.Logger("HTTP"))
+	s.router.POST(Chat, s.handleMessage(), authMW, jwtMW, logger.Logger("HTTP"))
 }

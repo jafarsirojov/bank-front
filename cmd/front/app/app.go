@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/jafarsirojov/bank-front/pkg/core/auth"
 	"github.com/jafarsirojov/bank-front/pkg/core/cards"
+	"github.com/jafarsirojov/bank-front/pkg/core/chat"
 	"github.com/jafarsirojov/bank-front/pkg/core/history"
 	"github.com/jafarsirojov/bank-front/pkg/core/utils"
 	"github.com/jafarsirojov/bank-front/pkg/jwt"
@@ -22,10 +23,11 @@ type Server struct {
 	authSvc    *auth.Client
 	cardsSvc   *cards.Card
 	historySvc *history.History
+	chatSvc    *chat.Chat
 }
 
-func NewServer(router *mux.ExactMux, secret jwt.Secret, authSvc *auth.Client, cardsSvc *cards.Card, historySvc *history.History) *Server {
-	return &Server{router: router, secret: secret, authSvc: authSvc, cardsSvc: cardsSvc, historySvc: historySvc}
+func NewServer(router *mux.ExactMux, secret jwt.Secret, authSvc *auth.Client, cardsSvc *cards.Card, historySvc *history.History, chatSvc *chat.Chat) *Server {
+	return &Server{router: router, secret: secret, authSvc: authSvc, cardsSvc: cardsSvc, historySvc: historySvc, chatSvc: chatSvc}
 }
 
 func (s *Server) Start() {
@@ -175,21 +177,206 @@ func (s *Server) handleLogin() http.HandlerFunc {
 	}
 }
 
-func (s *Server) handlePostsPage() http.HandlerFunc {
-	return func(writer http.ResponseWriter, request *http.Request) {
+func (s *Server) handleChatPage() http.HandlerFunc {
+	var (
+		tpl *template.Template
+		err error
+	)
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "chat.gohtml"))
+	if err != nil {
+		panic(err)
+	}
 
+	return func(writer http.ResponseWriter, request *http.Request) {
+		err := tpl.Execute(writer, struct{}{})
+		if err != nil {
+			log.Printf("error while executing template %s %v", tpl.Name(), err)
+		}
+		http.Redirect(writer, request, Chat, http.StatusTemporaryRedirect)
 	}
 }
 
-func (s *Server) handlePostEditPage() http.HandlerFunc {
-	return func(writer http.ResponseWriter, request *http.Request) {
+func (s *Server) handleChat() http.HandlerFunc {
+	var (
+		tpl *template.Template
+		err error
+	)
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "history.gohtml"))
+	if err != nil {
+		panic(err)
+	}
 
+	return func(writer http.ResponseWriter, request *http.Request) {
+		log.Print("start handle profile  2")
+		ctx, _ := context.WithTimeout(context.Background(), 210*time.Second)
+		token, err := request.Cookie("token")
+		if err != nil {
+			log.Printf("can't token is nil: %d", err)
+			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
+			return
+		}
+		///*authentication*/_, ok := jwt2.FromContext(request.Context()).(*Auth)
+		//if !ok {
+		//	log.Print("can't authentication is not ok")
+		//	http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
+		//	return
+		//}
+		//authentication.Id==0
+		AllMessage, err := s.chatSvc.GetAllMessage(ctx, token.Value)
+
+		log.Print("start handle profile  3")
+
+		if err != nil {
+			log.Printf("error------------------------------------------ : %s", err)
+			switch {
+			case errors.Is(err, context.DeadlineExceeded):
+				log.Print("auth service didn't response in given time")
+				log.Print("another err")
+				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
+			case errors.Is(err, context.Canceled):
+				log.Print("auth service didn't response in given time")
+				log.Print("another err")
+				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
+			case errors.Is(err, auth.ErrResponse):
+				var typedErr *auth.ErrorResponse
+				ok := errors.As(err, &typedErr)
+				if ok {
+					tplData := struct {
+						Err string
+					}{
+						Err: "",
+					}
+					if utils.StringInSlice("err.password_mismatch", typedErr.Errors) {
+						tplData.Err = "err.password_mismatch"
+					}
+
+					err := tpl.Execute(writer, tplData)
+					if err != nil {
+						log.Print(err)
+					}
+				}
+			}
+			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
+			return
+		}
+
+		log.Print("start handle profile  2")
+
+		tplData2 := struct {
+			Data []chat.ModelMassage
+		}{
+			Data: AllMessage,
+		}
+		err = tpl.Execute(writer, tplData2)
+		log.Print("start handle profile  2")
+		if err != nil {
+			log.Printf("can't execute: %d", err)
+			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
+			return
+		}
+		http.Redirect(writer, request, Chat, http.StatusTemporaryRedirect)
 	}
 }
 
-func (s *Server) handlePostEdit() http.HandlerFunc {
-	return func(writer http.ResponseWriter, request *http.Request) {
 
+func (s *Server) handleMessagePage() http.HandlerFunc {
+	var (
+		tpl *template.Template
+		err error
+	)
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "chat.gohtml"))
+	if err != nil {
+		panic(err)
+	}
+
+	return func(writer http.ResponseWriter, request *http.Request) {
+		err := tpl.Execute(writer, struct{}{})
+		if err != nil {
+			log.Printf("error while executing template %s %v", tpl.Name(), err)
+		}
+		http.Redirect(writer, request, Chat, http.StatusTemporaryRedirect)
+	}
+}
+
+func (s *Server) handleMessage() http.HandlerFunc {
+	var (
+		tpl *template.Template
+		err error
+	)
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "chat.gohtml"))
+	if err != nil {
+		panic(err)
+	}
+
+	return func(writer http.ResponseWriter, request *http.Request) {
+		log.Print("start handle profile  2")
+		ctx, _ := context.WithTimeout(context.Background(), 210*time.Second)
+		token, err := request.Cookie("token")
+		if err != nil {
+			log.Printf("can't token is nil: %d", err)
+			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
+			return
+		}
+		///*authentication*/_, ok := jwt2.FromContext(request.Context()).(*Auth)
+		//if !ok {
+		//	log.Print("can't authentication is not ok")
+		//	http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
+		//	return
+		//}
+		//authentication.Id==0
+		AllMessage, err := s.chatSvc.GetAllMessage(ctx, token.Value)
+
+		log.Print("start handle profile  3")
+
+		if err != nil {
+			log.Printf("error------------------------------------------ : %s", err)
+			switch {
+			case errors.Is(err, context.DeadlineExceeded):
+				log.Print("auth service didn't response in given time")
+				log.Print("another err")
+				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
+			case errors.Is(err, context.Canceled):
+				log.Print("auth service didn't response in given time")
+				log.Print("another err")
+				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
+			case errors.Is(err, auth.ErrResponse):
+				var typedErr *auth.ErrorResponse
+				ok := errors.As(err, &typedErr)
+				if ok {
+					tplData := struct {
+						Err string
+					}{
+						Err: "",
+					}
+					if utils.StringInSlice("err.password_mismatch", typedErr.Errors) {
+						tplData.Err = "err.password_mismatch"
+					}
+
+					err := tpl.Execute(writer, tplData)
+					if err != nil {
+						log.Print(err)
+					}
+				}
+			}
+			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
+			return
+		}
+
+		log.Print("start handle profile  2")
+
+		tplData2 := struct {
+			Data []chat.ModelMassage
+		}{
+			Data: AllMessage,
+		}
+		err = tpl.Execute(writer, tplData2)
+		log.Print("start handle profile  2")
+		if err != nil {
+			log.Printf("can't execute: %d", err)
+			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
+			return
+		}
+		http.Redirect(writer, request, Chat, http.StatusTemporaryRedirect)
 	}
 }
 
