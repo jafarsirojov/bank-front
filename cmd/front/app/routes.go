@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"github.com/jafarsirojov/bank-front/pkg/mux/middleware/authenticated"
 	"github.com/jafarsirojov/bank-front/pkg/mux/middleware/jwt"
 	jwtmux "github.com/jafarsirojov/bank-front/pkg/mux/middleware/jwt"
@@ -25,18 +26,19 @@ var (
 func (s *Server) InitRoutes() {
 	jwtMW := jwt.JWT(jwtmux.SourceCookie, reflect.TypeOf((*Payload)(nil)).Elem(), s.secret)
 	authMW := authenticated.Authenticated(jwt.IsContextNonEmpty, true, Root)
-	s.router.GET(Root, s.handleFrontPage(), logger.Logger("HTTP"))
+	authOKMW := authenticated.Authenticated(func(ctx context.Context) bool {return !jwt.IsContextNonEmpty(ctx)}, true, Profile)
+	s.router.GET(Root, s.handleFrontPage(), authOKMW, jwtMW, logger.Logger("HTTP"))
 	// GET -> html
 
 	s.router.GET(ErrorPage, s.handlePageErrorClient(), logger.Logger("HTTP"))
 	s.router.POST(ErrorPage, s.handlePageErrorClient(), logger.Logger("HTTP"))
 
-	s.router.GET(Login, s.handleLoginPage(), logger.Logger("HTTP"))
+	s.router.GET(Login, s.handleLoginPage(), authOKMW, jwtMW, logger.Logger("HTTP"))
 	s.router.GET(Logout, s.handleLogout(), logger.Logger("HTTP"))
 	// POST -> form handling + return HTML
-	s.router.POST(Login, s.handleLogin(), logger.Logger("HTTP"))
-	s.router.GET(Profile, s.handleProfile(), jwtMW, logger.Logger("HTTP"))  //authMW deleted
-	s.router.POST(Profile, s.handleProfile(), jwtMW, logger.Logger("HTTP")) //authMW deleted
+	s.router.POST(Login, s.handleLogin(), authOKMW, jwtMW, logger.Logger("HTTP"))
+	s.router.GET(Profile, s.handleProfile(), authMW, jwtMW, logger.Logger("HTTP"))
+	s.router.POST(Profile, s.handleProfile(), authMW, jwtMW, logger.Logger("HTTP"))
 
 	s.router.GET(Transfer, s.handleTransferPage(), jwtMW, logger.Logger("HTTP"))
 	s.router.POST(Transfer, s.handleTransfer(), jwtMW, logger.Logger("HTTP"))
