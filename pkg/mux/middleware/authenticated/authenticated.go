@@ -18,7 +18,7 @@ func Authenticated(vasya func(ctx context.Context) bool, redirect bool, redirect
 				return
 			}
 
-			http.Error(writer, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			http.Redirect(writer, request, "/logout", http.StatusTemporaryRedirect)
 			return
 		}
 	}

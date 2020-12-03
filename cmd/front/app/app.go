@@ -10,7 +10,6 @@ import (
 	"github.com/jafarsirojov/bank-front/pkg/core/utils"
 	"github.com/jafarsirojov/bank-front/pkg/jwt"
 	"github.com/jafarsirojov/bank-front/pkg/mux"
-	jwt2 "github.com/jafarsirojov/mux/pkg/mux/middleware/jwt"
 	"html/template"
 	"log"
 	"net/http"
@@ -400,22 +399,17 @@ func (s *Server) handleProfile() http.HandlerFunc {
 		log.Print("start handle profile  2")
 		ctx, _ := context.WithTimeout(context.Background(), 210*time.Second)
 		token, err := request.Cookie("token")
-		authentication, ok := jwt2.FromContext(request.Context()).(*Auth)
-		if !ok {
-			writer.WriteHeader(http.StatusBadRequest)
-			log.Print("can't authentication is not ok")
+		if err != nil {
+			// FIXME
 			return
 		}
-		if authentication == nil {
-			writer.WriteHeader(http.StatusUnauthorized)
-			log.Print("can't authentication is nil")
+		var payload Payload
+		err = jwt.Decode(token.Value, &payload)
+		if err != nil {
+			//FIXME
 			return
 		}
-
-		isAdmin := false
-		if authentication.Id == 0 {
-			isAdmin = true
-		}
+		log.Println("payload:", payload)
 
 		allCards, err := s.cardsSvc.AllCards(ctx, token.Value)
 
@@ -498,7 +492,7 @@ func (s *Server) handleProfile() http.HandlerFunc {
 		}{
 			AllCards:   allCards,
 			AllHistory: AllHistory,
-			IsAdmin:    isAdmin,
+			IsAdmin:    payload.Id == 0,
 		})
 		log.Print("start handle profile  2")
 		if err != nil {
