@@ -50,7 +50,7 @@ func (s *Server) handleFrontPage() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "index.html"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "index.gohtml"))
 	if err != nil {
 		panic(err)
 	}
@@ -83,7 +83,7 @@ func (s *Server) handleLoginPage() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "login.html"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "login.gohtml"))
 	if err != nil {
 		panic(err)
 	}
@@ -93,6 +93,7 @@ func (s *Server) handleLoginPage() http.HandlerFunc {
 		if err != nil {
 			log.Printf("error while executing template %s %v", tpl.Name(), err)
 		}
+		http.Redirect(writer, request, Profile, http.StatusTemporaryRedirect)
 	}
 }
 
@@ -101,7 +102,7 @@ func (s *Server) handleLogin() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "login.html"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "login.gohtml"))
 	if err != nil {
 		panic(err)
 	}
@@ -316,7 +317,7 @@ func (s *Server) handleTransfer() http.HandlerFunc {
 			return
 		}
 
-		err = s.cardsSvc.Transfer(request.Context(), numberCard, idCard,count, token.Value)
+		err = s.cardsSvc.Transfer(request.Context(), numberCard, idCard, count, token.Value)
 		if err != nil {
 			switch {
 			case errors.Is(err, context.DeadlineExceeded):
@@ -416,67 +417,86 @@ func (s *Server) handlePayment() http.HandlerFunc {
 	}
 }
 
-//func (s *Server) handleCards() http.HandlerFunc {
-//	log.Print("start handle profile")
-//	var (
-//		tpl *template.Template
-//		err error
-//	)
-//	tpl, err = template.ParseFiles(filepath.Join("web/templates", "profile.gohtml"))
-//	if err != nil {
-//		log.Printf("-----------------------------------%s", err)
-//		panic(err)
-//	}
-//	return func(writer http.ResponseWriter, request *http.Request) {
-//		log.Print("start handle profile  2")
-//		ctx, _ := context.WithTimeout(context.Background(), 2*time.Second)
-//		asd := ""
-//		allCards, err := s.cardsSvc.AllCards(ctx, asd)
-//		log.Print("start handle profile  3")
-//
-//		if err != nil {
-//			log.Printf("error------------------------------------------ : %s", err)
-//			switch {
-//			case errors.Is(err, context.DeadlineExceeded):
-//				log.Print("auth service didn't response in given time")
-//				log.Print("another err")
-//				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
-//			case errors.Is(err, context.Canceled):
-//				log.Print("auth service didn't response in given time")
-//				log.Print("another err")
-//				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
-//			case errors.Is(err, auth.ErrResponse):
-//				var typedErr *auth.ErrorResponse
-//				ok := errors.As(err, &typedErr)
-//				if ok {
-//					tplData := struct {
-//						Err string
-//					}{
-//						Err: "",
-//					}
-//					if utils.StringInSlice("err.password_mismatch", typedErr.Errors) {
-//						tplData.Err = "err.password_mismatch"
-//					}
-//
-//					err := tpl.Execute(writer, tplData)
-//					if err != nil {
-//						log.Print(err)
-//					}
-//				}
-//			}
-//			return
-//		}
-//		log.Print("start handle profile  2")
-//		err = tpl.Execute(writer, allCards)
-//		log.Print("start handle profile  2")
-//		if err != nil {
-//			log.Printf("can't execute: %d", err)
-//			http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
-//			return
-//		}
-//		//http.Redirect(writer, request, Posts, http.StatusTemporaryRedirect)
-//	}
-//}
+func (s *Server) handleCardsPage() http.HandlerFunc {
+	var (
+		tpl *template.Template
+		err error
+	)
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "cards.gohtml"))
+	if err != nil {
+		panic(err)
+	}
+
+	return func(writer http.ResponseWriter, request *http.Request) {
+		err := tpl.Execute(writer, struct{}{})
+		if err != nil {
+			log.Printf("error while executing template %s %v", tpl.Name(), err)
+		}
+		http.Redirect(writer, request, Profile, http.StatusTemporaryRedirect)
+	}
+}
+
+func (s *Server) handleCards() http.HandlerFunc {
+	log.Print("start handle profile")
+	var (
+		tpl *template.Template
+		err error
+	)
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "profile.gohtml"))
+	if err != nil {
+		log.Printf("-----------------------------------%s", err)
+		panic(err)
+	}
+	return func(writer http.ResponseWriter, request *http.Request) {
+		log.Print("start handle profile  2")
+		ctx, _ := context.WithTimeout(context.Background(), 2*time.Second)
+		asd := ""
+		allCards, err := s.cardsSvc.AllCards(ctx, asd)
+		log.Print("start handle profile  3")
+
+		if err != nil {
+			log.Printf("error------------------------------------------ : %s", err)
+			switch {
+			case errors.Is(err, context.DeadlineExceeded):
+				log.Print("auth service didn't response in given time")
+				log.Print("another err")
+				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
+			case errors.Is(err, context.Canceled):
+				log.Print("auth service didn't response in given time")
+				log.Print("another err")
+				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
+			case errors.Is(err, auth.ErrResponse):
+				var typedErr *auth.ErrorResponse
+				ok := errors.As(err, &typedErr)
+				if ok {
+					tplData := struct {
+						Err string
+					}{
+						Err: "",
+					}
+					if utils.StringInSlice("err.password_mismatch", typedErr.Errors) {
+						tplData.Err = "err.password_mismatch"
+					}
+
+					err := tpl.Execute(writer, tplData)
+					if err != nil {
+						log.Print(err)
+					}
+				}
+			}
+			return
+		}
+		log.Print("start handle profile  2")
+		err = tpl.Execute(writer, allCards)
+		log.Print("start handle profile  2")
+		if err != nil {
+			log.Printf("can't execute: %d", err)
+			http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
+			return
+		}
+		//http.Redirect(writer, request, Posts, http.StatusTemporaryRedirect)
+	}
+}
 
 func (s *Server) handleTransferPage() http.HandlerFunc {
 	var (
@@ -512,7 +532,7 @@ func (s *Server) handleHistory() http.HandlerFunc {
 		ctx, _ := context.WithTimeout(context.Background(), 210*time.Second)
 		token, err := request.Cookie("token")
 		if err != nil {
-			log.Printf("can't token is nil: %d",err)
+			log.Printf("can't token is nil: %d", err)
 			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
 			return
 		}
@@ -551,7 +571,7 @@ func (s *Server) handleHistory() http.HandlerFunc {
 						tplData.Err = "err.password_mismatch"
 					}
 
-					err = tpl.Execute(writer, tplData)
+					err := tpl.Execute(writer, tplData)
 					if err != nil {
 						log.Print(err)
 					}
@@ -584,16 +604,18 @@ func (s *Server) handleRegisterPage() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "register.html"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "register.gohtml"))
 	if err != nil {
 		panic(err)
 	}
 
 	return func(writer http.ResponseWriter, request *http.Request) {
-		err = tpl.Execute(writer, struct{}{})
+		err := tpl.Execute(writer, struct{}{})
 		if err != nil {
 			log.Printf("error while executing template %s %v", tpl.Name(), err)
 		}
+		log.Println("writer: ", writer, "tpl", tpl)
+		http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
 	}
 }
 
@@ -603,7 +625,7 @@ func (s *Server) handleRegister() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "register.html"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "register.gohtml"))
 	if err != nil {
 		log.Printf("-----------------------------------%s", err)
 		panic(err)
@@ -645,7 +667,7 @@ func (s *Server) handleRegister() http.HandlerFunc {
 			return
 		}
 
-		err = s.authSvc.Register(request.Context(), name, login,password, phone)
+		err = s.authSvc.Register(request.Context(), name, login, password, phone)
 		if err != nil {
 			switch {
 			case errors.Is(err, context.DeadlineExceeded):
@@ -746,7 +768,7 @@ func (s *Server) handleAddCard() http.HandlerFunc {
 
 		err = s.cardsSvc.AddCard(request.Context(), name, balance, ownerid, token.Value)
 		if err != nil {
-			log.Printf("can't add card %s",err)
+			log.Printf("can't add card %s", err)
 			switch {
 			case errors.Is(err, context.DeadlineExceeded):
 				// TODO: show error page (for deadline)
@@ -788,7 +810,7 @@ func (s *Server) handlePageErrorClient() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "errorclient.html"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "errorclient.gohtml"))
 	if err != nil {
 		panic(err)
 	}
@@ -841,27 +863,27 @@ func (s *Server) handleBlock() http.HandlerFunc {
 			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
 			return
 		}
-		numberCard := request.PostFormValue("numberCard")
-		if numberCard == "" {
-			// TODO: show error page
-			log.Print("numberCard can't be empty")
-			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
-			return
-		}
-		idCard := request.PostFormValue("idCard")
+		//numberCard := request.PostFormValue("numberCard")
+		//if numberCard == "" {
+		//	// TODO: show error page
+		//	log.Print("numberCard can't be empty")
+		//	http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
+		//	return
+		//}
+		idCard := request.PostFormValue("id")
 		if idCard == "" {
 			// TODO: show error page
 			log.Print("idCard can't be empty")
 			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
 			return
 		}
-		count := request.PostFormValue("count")
-		if count == "" {
-			// TODO: show error page
-			log.Print("count can't be empty")
-			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
-			return
-		}
+		//count := request.PostFormValue("count")
+		//if count == "" {
+		//	// TODO: show error page
+		//	log.Print("count can't be empty")
+		//	http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
+		//	return
+		//}
 
 		token, err := request.Cookie("token")
 		if err != nil {
@@ -870,7 +892,7 @@ func (s *Server) handleBlock() http.HandlerFunc {
 			return
 		}
 
-		err = s.cardsSvc.Transfer(request.Context(), numberCard, idCard,count, token.Value)
+		err = s.cardsSvc.BlockCardByID(request.Context(), idCard, token.Value)
 		if err != nil {
 			switch {
 			case errors.Is(err, context.DeadlineExceeded):
@@ -933,7 +955,7 @@ func (s *Server) handleUnBlock() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "unblock.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "block.gohtml"))
 	if err != nil {
 		log.Printf("-----------------------------------%s", err)
 		panic(err)
@@ -946,27 +968,27 @@ func (s *Server) handleUnBlock() http.HandlerFunc {
 			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
 			return
 		}
-		numberCard := request.PostFormValue("numberCard")
-		if numberCard == "" {
-			// TODO: show error page
-			log.Print("numberCard can't be empty")
-			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
-			return
-		}
-		idCard := request.PostFormValue("idCard")
+		//numberCard := request.PostFormValue("numberCard")
+		//if numberCard == "" {
+		//	// TODO: show error page
+		//	log.Print("numberCard can't be empty")
+		//	http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
+		//	return
+		//}
+		idCard := request.PostFormValue("id")
 		if idCard == "" {
 			// TODO: show error page
 			log.Print("idCard can't be empty")
 			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
 			return
 		}
-		count := request.PostFormValue("count")
-		if count == "" {
-			// TODO: show error page
-			log.Print("count can't be empty")
-			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
-			return
-		}
+		//count := request.PostFormValue("count")
+		//if count == "" {
+		//	// TODO: show error page
+		//	log.Print("count can't be empty")
+		//	http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
+		//	return
+		//}
 
 		token, err := request.Cookie("token")
 		if err != nil {
@@ -975,7 +997,7 @@ func (s *Server) handleUnBlock() http.HandlerFunc {
 			return
 		}
 
-		err = s.cardsSvc.Transfer(request.Context(), numberCard, idCard,count, token.Value)
+		err = s.cardsSvc.UnBlockCardByID(request.Context(), idCard, token.Value)
 		if err != nil {
 			switch {
 			case errors.Is(err, context.DeadlineExceeded):

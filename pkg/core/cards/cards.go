@@ -176,6 +176,105 @@ func (c *Card) Transfer(ctx context.Context, numberCardRecipient string, idCardS
 	default:
 		return fmt.Errorf("can't transfer money: %s", response.StatusCode)
 	}
+}
+
+func (c *Card) BlockCardByID(ctx context.Context, idCardSender string, token string) (err error) {
+	// add timeout to context
+	ctx, _ = context.WithTimeout(ctx, 55*time.Second)
+
+	idCardSenderInt, err := strconv.Atoi(idCardSender)
+	if err != nil {
+		log.Printf("can't atoi: %d", err)
+		return
+	}
+
+	model := ModelBlockCard{Id: idCardSenderInt}
+	requestBody, err := json.Marshal(model)
+	if err != nil {
+		return fmt.Errorf("can't encode requestBody %v: %w", model, err)
+	}
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		fmt.Sprintf("%s/api/cards/block", c.url),
+		bytes.NewBuffer(requestBody),
+	)
+	if err != nil {
+		return fmt.Errorf("can't create request: %w", err)
+	}
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		// context.Canceled
+		// context.DeadlineExceeded
+		return fmt.Errorf("can't send request: %w", err)
+	}
+	defer response.Body.Close()
+
+	switch response.StatusCode {
+	case 200:
+		log.Print("block card 200 ok")
+		return nil
+	case 400:
+		log.Print("can't bad request 400")
+		return fmt.Errorf("can't bad request 400: %w", err)
+	case 500:
+		log.Print("can't server internal error 500")
+		return fmt.Errorf("can't server internal error 500: %w", err)
+	default:
+		return fmt.Errorf("can't block card: %s", response.StatusCode)
+	}
+
+}
+
+func (c *Card) UnBlockCardByID(ctx context.Context, idCardSender string, token string) (err error) {
+	// add timeout to context
+	ctx, _ = context.WithTimeout(ctx, 55*time.Second)
+
+	idCardSenderInt, err := strconv.Atoi(idCardSender)
+	if err != nil {
+		log.Printf("can't atoi: %d", err)
+		return
+	}
+
+	model := ModelBlockCard{Id: idCardSenderInt}
+	requestBody, err := json.Marshal(model)
+	if err != nil {
+		return fmt.Errorf("can't encode requestBody %v: %w", model, err)
+	}
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		fmt.Sprintf("%s/api/cards/unblock", c.url),
+		bytes.NewBuffer(requestBody),
+	)
+	if err != nil {
+		return fmt.Errorf("can't create request: %w", err)
+	}
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		// context.Canceled
+		// context.DeadlineExceeded
+		return fmt.Errorf("can't send request: %w", err)
+	}
+	defer response.Body.Close()
+
+	switch response.StatusCode {
+	case 200:
+		log.Print("block card 200 ok")
+		return nil
+	case 400:
+		log.Print("can't bad request 400")
+		return fmt.Errorf("can't bad request 400: %w", err)
+	case 500:
+		log.Print("can't server internal error 500")
+		return fmt.Errorf("can't server internal error 500: %w", err)
+	default:
+		return fmt.Errorf("can't block card: %s", response.StatusCode)
+	}
 
 }
 
