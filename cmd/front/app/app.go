@@ -50,7 +50,7 @@ func (s *Server) handleFrontPage() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "index.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "index.html"))
 	if err != nil {
 		panic(err)
 	}
@@ -83,7 +83,7 @@ func (s *Server) handleLoginPage() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "login.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "login.html"))
 	if err != nil {
 		panic(err)
 	}
@@ -93,7 +93,6 @@ func (s *Server) handleLoginPage() http.HandlerFunc {
 		if err != nil {
 			log.Printf("error while executing template %s %v", tpl.Name(), err)
 		}
-		http.Redirect(writer, request, Profile, http.StatusTemporaryRedirect)
 	}
 }
 
@@ -102,7 +101,7 @@ func (s *Server) handleLogin() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "login.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "login.html"))
 	if err != nil {
 		panic(err)
 	}
@@ -205,7 +204,7 @@ func (s *Server) handleProfile() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "profile.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "profile.html"))
 	if err != nil {
 		log.Printf("-----------------------------------%s", err)
 		panic(err)
@@ -442,7 +441,7 @@ func (s *Server) handleCards() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "profile.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "profile.html"))
 	if err != nil {
 		log.Printf("-----------------------------------%s", err)
 		panic(err)
@@ -604,7 +603,7 @@ func (s *Server) handleRegisterPage() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "register.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "register.html"))
 	if err != nil {
 		panic(err)
 	}
@@ -625,7 +624,7 @@ func (s *Server) handleRegister() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "register.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "register.html"))
 	if err != nil {
 		log.Printf("-----------------------------------%s", err)
 		panic(err)
@@ -810,7 +809,7 @@ func (s *Server) handlePageErrorClient() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "errorclient.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "errorclient.html"))
 	if err != nil {
 		panic(err)
 	}

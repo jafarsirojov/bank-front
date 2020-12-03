@@ -28,7 +28,7 @@
 </head>
 <body style="background: -webkit-Linear-gradient(to Right,#FFEDEF,#DEEEBC);
 background: Linear-gradient(to Right,#FFEDEF,#DEEEBC); ">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary" style="box-shadow: 0 0 10px -3px gray">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary" style="box-shadow: 0 0 10px -3px gray; margin-bottom: 0">
     <a class="navbar-brand" href="/profile">JBank</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
             aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,9 +57,6 @@ background: Linear-gradient(to Right,#FFEDEF,#DEEEBC); ">
                     <a class="dropdown-item" href="/payment">Оплата услуг</a>
                 </div>
             </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/history">Истории транзакции</a>
-            </li>
         </ul>
         <button class="btn btn-warning my-2 my-sm-0" type="submit" style="margin: 0 10px"
                 onclick="location.href='/chat'">Open Chat
@@ -70,9 +67,18 @@ background: Linear-gradient(to Right,#FFEDEF,#DEEEBC); ">
     </div>
 </nav>
 <br>
-<div class="row" style="margin-left: 10px">
+<div class="right" style="float: right; margin-left:auto; width: 300px; overflow-y: scroll; max-height: 85vh">
+    <ul class="nav flex-column">
+        {{/*        ҳамаи транзакcияҳора дар ҳамиҷа брор*/}}
+        <li class="list-group-item">
+            {{/*            история транзакций-а дар даруни <p></p> навис*/}}
+            <p>Transaction history 1</p>
+        </li>
+    </ul>
+</div>
+<div class="row">
     {{range . }}
-        <div class="col-3">
+        <div class="col-3" style="margin-bottom: 20px">
             <a class="btn btn-info my-2 my-sm-0 card border-primary text-white" href="/{{.Id}}"
                style="padding: 0; text-align: left; box-shadow: 0 0 10px -6px gray; min-width: 250px">
                 <div class="card-header">{{.Number}}</div>
