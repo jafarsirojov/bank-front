@@ -256,8 +256,51 @@ func (s *Server) handleProfile() http.HandlerFunc {
 			}
 			return
 		}
+
+		AllHistory, err := s.historySvc.AllHistory(ctx, token.Value)
+
+		log.Print("start handle profile  3")
+
+		if err != nil {
+			log.Printf("error------------------------------------------ : %s", err)
+			switch {
+			case errors.Is(err, context.DeadlineExceeded):
+				log.Print("auth service didn't response in given time")
+				log.Print("another err")
+				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
+			case errors.Is(err, context.Canceled):
+				log.Print("auth service didn't response in given time")
+				log.Print("another err")
+				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
+			case errors.Is(err, auth.ErrResponse):
+				var typedErr *auth.ErrorResponse
+				ok := errors.As(err, &typedErr)
+				if ok {
+					tplData := struct {
+						Err string
+					}{
+						Err: "",
+					}
+					if utils.StringInSlice("err.password_mismatch", typedErr.Errors) {
+						tplData.Err = "err.password_mismatch"
+					}
+
+					err := tpl.Execute(writer, tplData)
+					if err != nil {
+						log.Print(err)
+					}
+				}
+			}
+		}
+
 		log.Print("start handle profile  2")
-		err = tpl.Execute(writer, allCards)
+		err = tpl.Execute(writer, struct {
+			AllCards   []cards.Cards
+			AllHistory []history.ModelOperationsLog
+		}{
+			AllCards:   allCards,
+			AllHistory: AllHistory,
+		})
 		log.Print("start handle profile  2")
 		if err != nil {
 			log.Printf("can't execute: %d", err)
@@ -511,88 +554,6 @@ func (s *Server) handleTransferPage() http.HandlerFunc {
 		err := tpl.Execute(writer, struct{}{})
 		if err != nil {
 			log.Printf("error while executing template %s %v", tpl.Name(), err)
-		}
-		http.Redirect(writer, request, Profile, http.StatusTemporaryRedirect)
-	}
-}
-
-func (s *Server) handleHistory() http.HandlerFunc {
-	var (
-		tpl *template.Template
-		err error
-	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "history.gohtml"))
-	if err != nil {
-		panic(err)
-	}
-
-	return func(writer http.ResponseWriter, request *http.Request) {
-		log.Print("start handle profile  2")
-		ctx, _ := context.WithTimeout(context.Background(), 210*time.Second)
-		token, err := request.Cookie("token")
-		if err != nil {
-			log.Printf("can't token is nil: %d", err)
-			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
-			return
-		}
-		///*authentication*/_, ok := jwt2.FromContext(request.Context()).(*Auth)
-		//if !ok {
-		//	log.Print("can't authentication is not ok")
-		//	http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
-		//	return
-		//}
-		//authentication.Id==0
-		AllHistory, err := s.historySvc.AllHistory(ctx, token.Value)
-
-		log.Print("start handle profile  3")
-
-		if err != nil {
-			log.Printf("error------------------------------------------ : %s", err)
-			switch {
-			case errors.Is(err, context.DeadlineExceeded):
-				log.Print("auth service didn't response in given time")
-				log.Print("another err")
-				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
-			case errors.Is(err, context.Canceled):
-				log.Print("auth service didn't response in given time")
-				log.Print("another err")
-				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
-			case errors.Is(err, auth.ErrResponse):
-				var typedErr *auth.ErrorResponse
-				ok := errors.As(err, &typedErr)
-				if ok {
-					tplData := struct {
-						Err string
-					}{
-						Err: "",
-					}
-					if utils.StringInSlice("err.password_mismatch", typedErr.Errors) {
-						tplData.Err = "err.password_mismatch"
-					}
-
-					err := tpl.Execute(writer, tplData)
-					if err != nil {
-						log.Print(err)
-					}
-				}
-			}
-			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
-			return
-		}
-
-		log.Print("start handle profile  2")
-
-		tplData2 := struct {
-			Data []history.ModelOperationsLog
-		}{
-			Data: AllHistory,
-		}
-		err = tpl.Execute(writer, tplData2)
-		log.Print("start handle profile  2")
-		if err != nil {
-			log.Printf("can't execute: %d", err)
-			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
-			return
 		}
 		http.Redirect(writer, request, Profile, http.StatusTemporaryRedirect)
 	}

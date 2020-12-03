@@ -53,10 +53,6 @@ func (s *Server) InitRoutes() {
 	s.router.GET(AddCard, s.handleAddCardPage(), logger.Logger("HTTP"))
 	s.router.POST(AddCard, s.handleAddCard(), logger.Logger("HTTP"))
 
-	//s.router.GET(Transfer, s.handleHistoryPage(), jwtMW, logger.Logger("HTTP"))
-	s.router.POST("/history", s.handleHistory(), jwtMW, logger.Logger("HTTP"))
-	s.router.GET("/history", s.handleHistory(), jwtMW, logger.Logger("HTTP"))
-
 	s.router.GET(Payment, s.handlePayment(), jwtMW, logger.Logger("HTTP"))
 	s.router.POST(Payment, s.handlePayment(), jwtMW, logger.Logger("HTTP"))
 

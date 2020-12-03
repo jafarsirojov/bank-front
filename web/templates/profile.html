@@ -69,15 +69,21 @@ background: Linear-gradient(to Right,#FFEDEF,#DEEEBC); ">
 <br>
 <div class="right" style="float: right; margin-left:auto; width: 300px; overflow-y: scroll; max-height: 85vh">
     <ul class="nav flex-column">
-        {{/*        ҳамаи транзакcияҳора дар ҳамиҷа брор*/}}
-        <li class="list-group-item">
-            {{/*            история транзакций-а дар даруни <p></p> навис*/}}
-            <p>Transaction history 1</p>
-        </li>
+        {{range .AllHistory }}
+            <li class="list-group-item">
+                {{/*                <p>{{.Id}}</p>*/}}
+                <p>Transfer type: {{.Name}}</p>
+                <p>Card ID: {{.Number}} , whois: {{.RecipientSender}}</p>
+                <p>Amount: {{.Count}}</p>
+                <p>Balance before: {{.BalanceOld}}</p>
+                <p>Balance after: {{.BalanceNew}}</p>
+                <p>Time: {{.Time}}</p>
+            </li>
+        {{ end }}
     </ul>
 </div>
 <div class="row">
-    {{range . }}
+    {{range .AllCards }}
         <div class="col-3" style="margin-bottom: 20px">
             <a class="btn btn-info my-2 my-sm-0 card border-primary text-white" href="/{{.Id}}"
                style="padding: 0; text-align: left; box-shadow: 0 0 10px -6px gray; min-width: 250px">
