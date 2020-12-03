@@ -10,6 +10,7 @@ import (
 	"github.com/jafarsirojov/bank-front/pkg/core/utils"
 	"github.com/jafarsirojov/bank-front/pkg/jwt"
 	"github.com/jafarsirojov/bank-front/pkg/mux"
+	jwt2 "github.com/jafarsirojov/mux/pkg/mux/middleware/jwt"
 	"html/template"
 	"log"
 	"net/http"
@@ -277,7 +278,6 @@ func (s *Server) handleChat() http.HandlerFunc {
 	}
 }
 
-
 func (s *Server) handleMessagePage() http.HandlerFunc {
 	var (
 		tpl *template.Template
@@ -400,13 +400,23 @@ func (s *Server) handleProfile() http.HandlerFunc {
 		log.Print("start handle profile  2")
 		ctx, _ := context.WithTimeout(context.Background(), 210*time.Second)
 		token, err := request.Cookie("token")
-		///*authentication*/_, ok := jwt2.FromContext(request.Context()).(*Auth)
-		//if !ok {
-		//	log.Print("can't authentication is not ok")
-		//	http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
-		//	return
-		//}
-		//authentication.Id==0
+		authentication, ok := jwt2.FromContext(request.Context()).(*Auth)
+		if !ok {
+			writer.WriteHeader(http.StatusBadRequest)
+			log.Print("can't authentication is not ok")
+			return
+		}
+		if authentication == nil {
+			writer.WriteHeader(http.StatusUnauthorized)
+			log.Print("can't authentication is nil")
+			return
+		}
+
+		isAdmin := false
+		if authentication.Id == 0 {
+			isAdmin = true
+		}
+
 		allCards, err := s.cardsSvc.AllCards(ctx, token.Value)
 
 		log.Print("start handle profile  3")
@@ -484,11 +494,11 @@ func (s *Server) handleProfile() http.HandlerFunc {
 		err = tpl.Execute(writer, struct {
 			AllCards   []cards.Cards
 			AllHistory []history.ModelOperationsLog
-			IsAdmin bool
+			IsAdmin    bool
 		}{
 			AllCards:   allCards,
 			AllHistory: AllHistory,
-			IsAdmin: false,
+			IsAdmin:    isAdmin,
 		})
 		log.Print("start handle profile  2")
 		if err != nil {
