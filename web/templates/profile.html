@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Welcome!</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous"></script>
+    <style>
+        * {
+            font-family: "Trebuchet MS", sans-serif;
+            margin: 0;
+            padding: 0;
+            color: black;
+        }
+    </style>
+</head>
+<body style="background: -webkit-Linear-gradient(to Right,#FFEDEF,#DEEEBC);
+background: Linear-gradient(to Right,#FFEDEF,#DEEEBC); ">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary" style="box-shadow: 0 0 10px -3px gray; margin-bottom: 0">
+    <a class="navbar-brand" href="/profile">JBank</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+            aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item dropdown active">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Операции со счётом
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/card/block">Блокировка счёта</a>
+                    <a class="dropdown-item" href="/card/unblock">Разблокировка счёта</a>
+                    <a class="dropdown-item" href="/add/card">Добавление счёта</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown active">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    Дополнительно
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/transfer">Перевод денег</a>
+                    <a class="dropdown-item" href="/payment">Оплата услуг</a>
+                </div>
+            </li>
+        </ul>
+        <button class="btn btn-warning my-2 my-sm-0" type="submit" style="margin: 0 10px"
+                onclick="location.href='/chat'">Open Chat
+        </button>
+        <button class="btn btn-dark my-2 my-sm-0" type="submit" style="margin: 0 10px"
+                onclick="location.href='/logout'">Log-out
+        </button>
+    </div>
+</nav>
+<br>
+<div class="right" style="float: right; margin-left:auto; width: 300px; overflow-y: scroll; max-height: 85vh">
+    <ul class="nav flex-column">
+        {{range .AllHistory }}
+            <li class="list-group-item">
+                {{/*                <p>{{.Id}}</p>*/}}
+                <p>Transfer type: {{.Name}}</p>
+                <p>Card ID: {{.Number}} , whois: {{.RecipientSender}}</p>
+                <p>Amount: {{.Count}}</p>
+                <p>Balance before: {{.BalanceOld}}</p>
+                <p>Balance after: {{.BalanceNew}}</p>
+                <p>Time: {{.Time}}</p>
+            </li>
+        {{ end }}
+    </ul>
+</div>
+<div class="row">
+    {{range .AllCards }}
+        <div class="col-3" style="margin-bottom: 20px">
+            <a class="btn btn-info my-2 my-sm-0 card border-primary text-white" href="/{{.Id}}"
+               style="padding: 0; text-align: left; box-shadow: 0 0 10px -6px gray; min-width: 250px">
+                <div class="card-header">{{.Number}}</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{.Name}}</h5>
+                    <br>
+                    <p class="card-text">Balance: {{.Balance}}</p>
+                </div>
+            </a>
+        </div>
+    {{ end }}
+</div>
+</body>
+</html>

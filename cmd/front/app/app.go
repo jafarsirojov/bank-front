@@ -52,7 +52,7 @@ func (s *Server) handleFrontPage() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "index.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "index.html"))
 	if err != nil {
 		panic(err)
 	}
@@ -85,7 +85,7 @@ func (s *Server) handleLoginPage() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "login.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "login.html"))
 	if err != nil {
 		panic(err)
 	}
@@ -95,7 +95,6 @@ func (s *Server) handleLoginPage() http.HandlerFunc {
 		if err != nil {
 			log.Printf("error while executing template %s %v", tpl.Name(), err)
 		}
-		http.Redirect(writer, request, Profile, http.StatusTemporaryRedirect)
 	}
 }
 
@@ -104,7 +103,7 @@ func (s *Server) handleLogin() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "login.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "login.html"))
 	if err != nil {
 		panic(err)
 	}
@@ -392,7 +391,7 @@ func (s *Server) handleProfile() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "profile.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "profile.html"))
 	if err != nil {
 		log.Printf("-----------------------------------%s", err)
 		panic(err)
@@ -444,8 +443,53 @@ func (s *Server) handleProfile() http.HandlerFunc {
 			}
 			return
 		}
+
+		AllHistory, err := s.historySvc.AllHistory(ctx, token.Value)
+
+		log.Print("start handle profile  3")
+
+		if err != nil {
+			log.Printf("error------------------------------------------ : %s", err)
+			switch {
+			case errors.Is(err, context.DeadlineExceeded):
+				log.Print("auth service didn't response in given time")
+				log.Print("another err")
+				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
+			case errors.Is(err, context.Canceled):
+				log.Print("auth service didn't response in given time")
+				log.Print("another err")
+				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
+			case errors.Is(err, auth.ErrResponse):
+				var typedErr *auth.ErrorResponse
+				ok := errors.As(err, &typedErr)
+				if ok {
+					tplData := struct {
+						Err string
+					}{
+						Err: "",
+					}
+					if utils.StringInSlice("err.password_mismatch", typedErr.Errors) {
+						tplData.Err = "err.password_mismatch"
+					}
+
+					err := tpl.Execute(writer, tplData)
+					if err != nil {
+						log.Print(err)
+					}
+				}
+			}
+		}
+
 		log.Print("start handle profile  2")
-		err = tpl.Execute(writer, allCards)
+		err = tpl.Execute(writer, struct {
+			AllCards   []cards.Cards
+			AllHistory []history.ModelOperationsLog
+			IsAdmin bool
+		}{
+			AllCards:   allCards,
+			AllHistory: AllHistory,
+			IsAdmin: false,
+		})
 		log.Print("start handle profile  2")
 		if err != nil {
 			log.Printf("can't execute: %d", err)
@@ -629,7 +673,7 @@ func (s *Server) handleCards() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "profile.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "profile.html"))
 	if err != nil {
 		log.Printf("-----------------------------------%s", err)
 		panic(err)
@@ -704,94 +748,12 @@ func (s *Server) handleTransferPage() http.HandlerFunc {
 	}
 }
 
-func (s *Server) handleHistory() http.HandlerFunc {
-	var (
-		tpl *template.Template
-		err error
-	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "history.gohtml"))
-	if err != nil {
-		panic(err)
-	}
-
-	return func(writer http.ResponseWriter, request *http.Request) {
-		log.Print("start handle profile  2")
-		ctx, _ := context.WithTimeout(context.Background(), 210*time.Second)
-		token, err := request.Cookie("token")
-		if err != nil {
-			log.Printf("can't token is nil: %d", err)
-			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
-			return
-		}
-		///*authentication*/_, ok := jwt2.FromContext(request.Context()).(*Auth)
-		//if !ok {
-		//	log.Print("can't authentication is not ok")
-		//	http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
-		//	return
-		//}
-		//authentication.Id==0
-		AllHistory, err := s.historySvc.AllHistory(ctx, token.Value)
-
-		log.Print("start handle profile  3")
-
-		if err != nil {
-			log.Printf("error------------------------------------------ : %s", err)
-			switch {
-			case errors.Is(err, context.DeadlineExceeded):
-				log.Print("auth service didn't response in given time")
-				log.Print("another err")
-				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
-			case errors.Is(err, context.Canceled):
-				log.Print("auth service didn't response in given time")
-				log.Print("another err")
-				http.Redirect(writer, request, Root, http.StatusTemporaryRedirect)
-			case errors.Is(err, auth.ErrResponse):
-				var typedErr *auth.ErrorResponse
-				ok := errors.As(err, &typedErr)
-				if ok {
-					tplData := struct {
-						Err string
-					}{
-						Err: "",
-					}
-					if utils.StringInSlice("err.password_mismatch", typedErr.Errors) {
-						tplData.Err = "err.password_mismatch"
-					}
-
-					err := tpl.Execute(writer, tplData)
-					if err != nil {
-						log.Print(err)
-					}
-				}
-			}
-			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
-			return
-		}
-
-		log.Print("start handle profile  2")
-
-		tplData2 := struct {
-			Data []history.ModelOperationsLog
-		}{
-			Data: AllHistory,
-		}
-		err = tpl.Execute(writer, tplData2)
-		log.Print("start handle profile  2")
-		if err != nil {
-			log.Printf("can't execute: %d", err)
-			http.Redirect(writer, request, ErrorPage, http.StatusTemporaryRedirect)
-			return
-		}
-		http.Redirect(writer, request, Profile, http.StatusTemporaryRedirect)
-	}
-}
-
 func (s *Server) handleRegisterPage() http.HandlerFunc {
 	var (
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "register.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "register.html"))
 	if err != nil {
 		panic(err)
 	}
@@ -812,7 +774,7 @@ func (s *Server) handleRegister() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "register.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "register.html"))
 	if err != nil {
 		log.Printf("-----------------------------------%s", err)
 		panic(err)
@@ -997,7 +959,7 @@ func (s *Server) handlePageErrorClient() http.HandlerFunc {
 		tpl *template.Template
 		err error
 	)
-	tpl, err = template.ParseFiles(filepath.Join("web/templates", "errorclient.gohtml"))
+	tpl, err = template.ParseFiles(filepath.Join("web/templates", "errorclient.html"))
 	if err != nil {
 		panic(err)
 	}
